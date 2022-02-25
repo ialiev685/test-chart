@@ -2,10 +2,12 @@ const text = document.querySelector(".text");
 const chart = document.getElementById("chart");
 const wrapper = document.querySelector(".wrapper");
 
-const handleChangeChart = (e) => {
-  // console.log(e.target.tagName);
-  // console.log(e.currentTarget.tagName);
-  getRandomCountDots();
+const context = chart.getContext("2d");
+const widthX = chart.width;
+const hetghtY = chart.height;
+
+const handleChangeChart = () => {
+  draw();
 };
 
 const getRandomCountDots = () => {
@@ -21,33 +23,66 @@ const getRandormCoordinatesY = () => {
 
 wrapper.addEventListener("click", handleChangeChart);
 
-const draw = (context, widthX) => {
-  const countDot = getRandomCountDots();
-  const stepDot = Math.round(widthX / countDot);
-  // console.log(stepDot);
-  // console.log(widthX);
-  let x = 50;
+const makeChart = {
+  startX: 50,
+  startY: hetghtY - 100,
+  x: 50,
+  y: 0,
+  vx: 5,
+  vy: 2,
 
+  dots: 0,
+  step: 0,
+
+  draw: function () {
+    // const countDots = getRandomCountDots();
+    // const stepDot = Math.round((widthX - 100) / countDots);
+    this.dots = getRandomCountDots();
+    this.step = Math.round((widthX - 100) / this.dots);
+    console.log(this.dots, this.step);
+    context.beginPath();
+
+    context.fillStyle = "#FFFFFF";
+    context.strokeStyle = "#000000";
+
+    context.arc(this.startX, this.startY, 5, 0, (Math.PI / 180) * 2, true);
+
+    context.moveTo(this.startX, this.startY);
+
+    [...Array(this.dots)].forEach((_, index) => {
+      this.x += this.step;
+      this.y = getRandormCoordinatesY();
+
+      console.log(this.x, this.y);
+
+      context.lineTo(this.x, this.y);
+
+      context.arc(this.x, this.y, 5, 0, (Math.PI / 180) * 2, true);
+
+      context.moveTo(this.x, this.y);
+
+      context.stroke();
+    });
+  },
+};
+
+const draw = () => {
+  const widthX = chart.width;
+  const hetghtY = chart.height;
+  context.clearRect(0, 0, widthX, hetghtY);
+  makeChart.draw();
+
+  // const raf = window.requestAnimationFrame(draw);
+  // window.cancelAnimationFrame(draw);
+};
+
+const clearChart = (context, widthX, hetghtY) => {
   context.beginPath();
-  context.moveTo(x, 500);
-  [...Array(countDot)].forEach((_, index) => {
-    // context.fillStyle = "#FFFFFF";
-    // context.arc(100, 500, 5, 0, (Math.PI / 180) * 2, true);
-    // context.fill();
-    x += stepDot;
-    console.log("x", x);
-    context.lineTo(x, getRandormCoordinatesY());
-    context.stroke();
-  });
+  context.clearRect(0, 0, widthX, hetghtY);
 };
 
 const initChart = () => {
-  if (chart.getContext) {
-    const context = chart.getContext("2d");
-    const widthX = chart.width - 100;
-    draw(context, widthX);
-    // console.log(context);
-  }
+  makeChart.draw();
 };
 
 initChart();
