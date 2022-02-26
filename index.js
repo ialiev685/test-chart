@@ -7,7 +7,7 @@ const widthX = chart.width;
 const hetghtY = chart.height;
 
 const handleChangeChart = () => {
-  draw();
+  initChart();
 };
 
 const getRandomCountDots = () => {
@@ -23,66 +23,76 @@ const getRandormCoordinatesY = () => {
 
 wrapper.addEventListener("click", handleChangeChart);
 
-const makeChart = {
-  startX: 50,
-  startY: hetghtY - 100,
-  x: 50,
-  y: 0,
-  vx: 5,
-  vy: 2,
-
-  dots: 0,
-  step: 0,
-
-  draw: function () {
-    // const countDots = getRandomCountDots();
-    // const stepDot = Math.round((widthX - 100) / countDots);
-    this.dots = getRandomCountDots();
-    this.step = Math.round((widthX - 100) / this.dots);
-    console.log(this.dots, this.step);
-    context.beginPath();
-
-    context.fillStyle = "#FFFFFF";
-    context.strokeStyle = "#000000";
-
-    context.arc(this.startX, this.startY, 5, 0, (Math.PI / 180) * 2, true);
-
-    context.moveTo(this.startX, this.startY);
-
-    [...Array(this.dots)].forEach((_, index) => {
-      this.x += this.step;
-      this.y = getRandormCoordinatesY();
-
-      console.log(this.x, this.y);
-
-      context.lineTo(this.x, this.y);
-
-      context.arc(this.x, this.y, 5, 0, (Math.PI / 180) * 2, true);
-
-      context.moveTo(this.x, this.y);
-
-      context.stroke();
-    });
-  },
-};
+let arrCirc = [];
+let arrCoor = [];
+let coeff = 0.01;
 
 const draw = () => {
   const widthX = chart.width;
   const hetghtY = chart.height;
   context.clearRect(0, 0, widthX, hetghtY);
-  makeChart.draw();
+  let startX = 50;
+  let startY = hetghtY - 100;
 
-  // const raf = window.requestAnimationFrame(draw);
-  // window.cancelAnimationFrame(draw);
-};
+  let x;
+  let y;
 
-const clearChart = (context, widthX, hetghtY) => {
+  // const dots = getRandomCountDots();
+  // const step = Math.round((widthX - 100) / dots);
+
   context.beginPath();
-  context.clearRect(0, 0, widthX, hetghtY);
+
+  context.fillStyle = "#FFFFFF";
+  context.strokeStyle = "#000000";
+
+  context.arc(startX, startY, 5, 0, (Math.PI / 180) * 2, true);
+
+  // context.moveTo(startX, startY);
+  context.fill();
+  context.stroke();
+
+  context.beginPath();
+
+  coeff += 0.02;
+
+  arrCirc.forEach((item, index) => {
+    x = arrCoor[index].x;
+    y = arrCoor[index].y;
+    // context.lineTo(x, y);
+    context.arc(x, y, 5, 0, (Math.PI / 180) * 2, true);
+
+    context.fill();
+    context.stroke();
+    context.beginPath();
+  });
+
+  if (coeff < 1) window.requestAnimationFrame(draw);
 };
 
 const initChart = () => {
-  makeChart.draw();
+  const dots = getRandomCountDots();
+  const step = Math.round((widthX - 100) / dots);
+
+  arrCirc = [];
+  arrCoor = [];
+  coeff = 0.01;
+
+  let x = 50;
+  let y;
+
+  [...Array(dots)].forEach((_, index) => {
+    x += step;
+    y = getRandormCoordinatesY();
+
+    const circ = new Path2D();
+    arrCirc.push(circ);
+    arrCoor.push({ x, y });
+  });
+
+  // console.log(arrCoor);
+
+  draw();
+  // window.requestAnimationFrame(draw);
 };
 
 initChart();
