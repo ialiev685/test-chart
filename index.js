@@ -15,7 +15,7 @@ let startY = hetghtY - 100;
 
 const getRandomCountDots = () => {
   const numberRandom = Math.round(Math.random() * (10 - 2) + 2);
-  text.textContent = `count X:${numberRandom}`;
+  // text.textContent = `count X:${numberRandom}`;
   return numberRandom;
 };
 
