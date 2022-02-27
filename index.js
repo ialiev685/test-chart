@@ -6,9 +6,9 @@ const context = chart.getContext("2d");
 const widthX = chart.width;
 const hetghtY = chart.height;
 
-const handleChangeChart = () => {
-  initChart();
-};
+let arrCirc = [];
+let arrCoor = [];
+let coeff = 0.01;
 
 const getRandomCountDots = () => {
   const numberRandom = Math.round(Math.random() * (10 - 2) + 2);
@@ -21,11 +21,46 @@ const getRandormCoordinatesY = () => {
   return numberRandom * 100;
 };
 
-wrapper.addEventListener("click", handleChangeChart);
+const handleChangeChart = () => {
+  const dots = getRandomCountDots();
+  const step = Math.round((widthX - 100) / dots);
+  let x = 0;
+  let y;
 
-let arrCirc = [];
-let arrCoor = [];
-let coeff = 0.01;
+  coeff = 0.01;
+
+  let curX = 0;
+  let curY = 0;
+
+  const arrCoorTransit = arrCoor;
+  console.log("arrCoorTransit", arrCoorTransit);
+  console.log("arrCoor", arrCoor);
+  const lastIndex = arrCoor.length - 1;
+  arrCoor = [];
+
+  [...Array(dots)].forEach((_, index) => {
+    x += step;
+    y = getRandormCoordinatesY();
+
+    let prevX = arrCoorTransit[index]?.curX;
+    let prevY = arrCoorTransit[index]?.curX;
+
+    let lastPrevX = arrCoorTransit[lastIndex].curX;
+    let lastPrevY = arrCoorTransit[lastIndex].curY;
+
+    curX = prevX === undefined ? lastPrevX : arrCoorTransit[index].curX;
+    curY = prevY === undefined ? lastPrevY : arrCoorTransit[index].curY;
+
+    // console.log("prev", prevX);
+
+    // console.log("проблемный:", arrCoorTransit[index].curX, "точек:", dots);
+    arrCoor[index] = { curX, curY, nextX: x, nextY: y };
+  });
+  // initChart();
+  // console.log("новый arrCoor", arrCoor);
+  draw();
+};
+wrapper.addEventListener("click", handleChangeChart);
 
 const draw = () => {
   const widthX = chart.width;
@@ -54,10 +89,13 @@ const draw = () => {
   context.beginPath();
 
   coeff += 0.02;
+  console.log(arrCoor);
+  arrCoor.forEach((item, index) => {
+    nextX = item.nextX === 0 ? 0 : item.nextX - item.curX;
+    nextY = item.nextY === 0 ? 0 : item.nextY - item.curY;
 
-  arrCirc.forEach((item, index) => {
-    x = arrCoor[index].x;
-    y = arrCoor[index].y;
+    x = item.curX + nextX * coeff;
+    y = item.curY + nextY * coeff;
     // context.lineTo(x, y);
     context.arc(x, y, 5, 0, (Math.PI / 180) * 2, true);
 
@@ -65,6 +103,8 @@ const draw = () => {
     context.stroke();
     context.beginPath();
   });
+
+  console.log("base", arrCoor);
 
   if (coeff < 1) window.requestAnimationFrame(draw);
 };
@@ -84,12 +124,10 @@ const initChart = () => {
     x += step;
     y = getRandormCoordinatesY();
 
-    const circ = new Path2D();
-    arrCirc.push(circ);
-    arrCoor.push({ x, y });
+    // const circ = new Path2D();
+    // arrCirc.push(circ);
+    arrCoor.push({ curX: x, curY: y, nextX: 0, nextY: 0 });
   });
-
-  // console.log(arrCoor);
 
   draw();
   // window.requestAnimationFrame(draw);
